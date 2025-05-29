@@ -12,5 +12,6 @@ EditorBuildSettings:
     path: Assets/1233_GameProgramming/StudentWork/Scenes/SimpleLevel.unity
     guid: d0c54637c41b1ff40bc06a63039af501
   m_configObjects:
+    com.unity.input.settings: {fileID: 11400000, guid: 74b3edbd850e20647a1dcdf4ff0c943f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 1fe16d883027d84498be09e9158c8313, type: 3}
   m_UseUCBPForAssetBundles: 0

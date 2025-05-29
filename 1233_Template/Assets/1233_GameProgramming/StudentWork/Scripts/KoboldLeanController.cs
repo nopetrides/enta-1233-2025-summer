@@ -146,6 +146,9 @@ namespace Kobolds
 #if FIM
 		[SerializeField] private LeaningAnimator LeaningAnim;
 #endif
+
+		// Store original bone rotations to blend with
+		private readonly Dictionary<Transform, Quaternion> _originalBoneRotations = new();
 		private readonly float _terminalVelocity = 53.0f;
 		private float _animationBlend;
 		private float _animationDirectionMultiplier = 1f;
@@ -176,9 +179,6 @@ namespace Kobolds
 		// timeout deltatime
 		private float _jumpTimeoutDelta;
 		private GameObject _mainCamera;
-
-		// Store original bone rotations to blend with
-		private readonly Dictionary<Transform, Quaternion> _originalBoneRotations = new();
 
 #if ENABLE_INPUT_SYSTEM
 		private PlayerInput _playerInput;
@@ -285,24 +285,24 @@ namespace Kobolds
 				_currentHeadLookRotation = Head.rotation;
 				_targetHeadLookRotation = Head.rotation;
 			}
-
-			// Store original rotations for all spine joints
-			if (Joints != null)
-				foreach (var joint in Joints)
-					if (joint != null)
-						_originalBoneRotations[joint] = joint.localRotation;
 		}
 
 		private void UpdateHeadBodySeparation()
 		{
 			if (Head == null || Hips == null) return;
 
+			// Update original rotations every frame to match current animation
+			if (Joints != null)
+				foreach (var joint in Joints)
+					if (joint != null)
+						_originalBoneRotations[joint] = joint.localRotation;
+
 			// Calculate target head look direction based on camera
-			float clampedPitch = Mathf.Clamp(_cinemachineTargetPitch + 45f, -85f, 85f);
-			Vector3 cameraForward = Quaternion.Euler(clampedPitch, _cinemachineTargetYaw, 0f) * Vector3.forward;
+			var clampedPitch = Mathf.Clamp(_cinemachineTargetPitch + 45f, -85f, 85f);
+			var cameraForward = Quaternion.Euler(clampedPitch, _cinemachineTargetYaw, 0f) * Vector3.forward;
 			_targetHeadLookRotation = Quaternion.LookRotation(cameraForward, Vector3.up);
-			
-			
+
+
 			// DEBUG: Comprehensive coordinate comparison
 			// Debug.Log("=== COORDINATE DEBUG ===");
 			// Debug.Log($"Camera World Rotation: {_mainCamera.transform.rotation.eulerAngles}");
@@ -321,7 +321,7 @@ namespace Kobolds
 			// Debug.Log($"Target Head Rotation: {_targetHeadLookRotation.eulerAngles}");
 			// Debug.Log($"Target Head Forward: {cameraForward}");
 			// Debug.Log("========================");
-			
+
 			//var cameraForward = Quaternion.Euler(_cinemachineTargetPitch, _cinemachineTargetYaw, 0f) * Vector3.forward;
 			//_targetHeadLookRotation = Quaternion.LookRotation(cameraForward, Vector3.up);
 
@@ -344,7 +344,7 @@ namespace Kobolds
 			// Debug.Log($"Head Transform LOCAL Rotation (Euler): {Head.localRotation.eulerAngles}");
 
 			//Head.rotation = _currentHeadLookRotation;
-			
+
 			// DEBUG: Check if rotation was actually applied
 			// Debug.Log($"Just SET Head rotation to: {_currentHeadLookRotation.eulerAngles}");
 			// Debug.Log($"Head rotation NOW is: {Head.rotation.eulerAngles}");
@@ -355,7 +355,7 @@ namespace Kobolds
 			var hipForward = Hips.forward;
 
 			var angleFromHips = Vector3.SignedAngle(hipForward, headForward, Vector3.up);
-			
+
 			// DEBUG: Add these lines
 			Debug.Log($"Head Forward: {headForward}");
 			Debug.Log($"Hip Forward: {hipForward}");
@@ -373,29 +373,88 @@ namespace Kobolds
 				UpdateAnimationDirection();
 			}
 
-			//Adjust hip rotation if needed
+			// Adjust character rotation if needed to keep head in comfortable range
 			if (_isBackPedaling)
-				// When back-pedaling, hips should face opposite to movement direction
+			{
 				if (_currentMovementDirection.magnitude > 0.1f)
 				{
+					// When moving: rotate to face opposite to movement direction
 					var oppositeDirection = -_currentMovementDirection;
-					var targetHipRotation = Quaternion.LookRotation(oppositeDirection, Vector3.up);
+					var targetCharacterRotation = Quaternion.LookRotation(oppositeDirection, Vector3.up);
 
-					Hips.rotation = Quaternion.RotateTowards(
-						Hips.rotation,
-						targetHipRotation,
+					transform.rotation = Quaternion.RotateTowards(
+						transform.rotation,
+						targetCharacterRotation,
 						HipAdjustmentSpeed * Time.deltaTime
 					);
 				}
+				else if (Mathf.Abs(angleFromHips) > MaxHeadHipAngle * 0.7f)
+				{
+					// When not moving: rotate to reduce head-hip angle strain
+					// Rotate character toward head's yaw direction to bring angle back under 90°
+					headForward = _currentHeadLookRotation * Vector3.forward;
+					var projectedHeadForward = new Vector3(headForward.x, 0, headForward.z).normalized;
+					var targetCharacterRotation = Quaternion.LookRotation(projectedHeadForward, Vector3.up);
+
+					transform.rotation = Quaternion.RotateTowards(
+						transform.rotation,
+						targetCharacterRotation,
+						HipAdjustmentSpeed * Time.deltaTime
+					);
+				}
+			}
+			else
+			{
+				if (_currentMovementDirection.magnitude > 0.1f)
+				{
+					headForward = _currentHeadLookRotation * Vector3.forward;
+					var projectedHeadForward = new Vector3(headForward.x, 0, headForward.z).normalized;
+					var targetCharacterRotation = Quaternion.LookRotation(projectedHeadForward, Vector3.up);
+
+					transform.rotation = Quaternion.RotateTowards(
+						transform.rotation,
+						targetCharacterRotation,
+						HipAdjustmentSpeed * Time.deltaTime
+					);
+				}
+				// When head is getting close to the limit, gradually rotate character to help
+				else if (Mathf.Abs(angleFromHips) > MaxHeadHipAngle * 0.7f) // Start rotating at 70% of max angle
+				{
+					// Rotate character slightly toward the head's look direction to reduce strain
+					headForward = _currentHeadLookRotation * Vector3.forward;
+					var projectedHeadForward = new Vector3(headForward.x, 0, headForward.z).normalized;
+					var targetCharacterRotation = Quaternion.LookRotation(projectedHeadForward, Vector3.up);
+
+					var rotationSpeed = HipAdjustmentSpeed;
+					transform.rotation = Quaternion.RotateTowards(
+						transform.rotation,
+						targetCharacterRotation,
+						rotationSpeed * Time.deltaTime
+					);
+				}
+			}
 
 			// Apply head tracking to spine chain
-			//ApplyHeadTrackingToSpine();
-			Head.rotation = _currentHeadLookRotation;
+			ApplyHeadTrackingToSpine();
+			//Head.rotation = _currentHeadLookRotation;
 		}
 
 		private void ApplyHeadTrackingToSpine()
 		{
 			if (Joints == null || Joints.Count == 0) return;
+
+			// DEBUG: Check what we have stored
+			// Debug.Log("=== STORED ROTATIONS DEBUG ===");
+			// for (int i = 0; i < Joints.Count; i++)
+			// {
+			// 	if (Joints[i] != null)
+			// 	{
+			// 		Debug.Log($"Joint {i} ({Joints[i].name}):");
+			// 		Debug.Log($"  Current Local: {Joints[i].localRotation.eulerAngles}");
+			// 		Debug.Log($"  Stored Original: {(_originalBoneRotations.ContainsKey(Joints[i]) ? _originalBoneRotations[Joints[i]].eulerAngles.ToString() : "NOT STORED")}");
+			// 	}
+			// }
+			// Debug.Log("========================");
 
 			// Find head in joints list to determine distribution
 			var headIndex = -1;
@@ -408,36 +467,62 @@ namespace Kobolds
 
 			if (headIndex == -1) return;
 
-			// Calculate total rotation needed
+			// Calculate total rotation needed - separate pitch and yaw
 			var currentHeadForward = Head.forward;
 			var targetHeadForward = _currentHeadLookRotation * Vector3.forward;
-			var totalRotation = Quaternion.FromToRotation(currentHeadForward, targetHeadForward);
 
-			// Distribute rotation across spine joints (more rotation toward the head)
+			// Calculate yaw (left/right) and pitch (up/down) separately
+			var totalYawDifference = Vector3.SignedAngle(
+				new Vector3(currentHeadForward.x, 0, currentHeadForward.z).normalized,
+				new Vector3(targetHeadForward.x, 0, targetHeadForward.z).normalized,
+				Vector3.up
+			);
+
+			var totalPitchDifference = Vector3.SignedAngle(
+				currentHeadForward,
+				targetHeadForward,
+				Vector3.Cross(Vector3.up, targetHeadForward)
+			);
+
+			// DEBUG: Check the calculated differences
+			//Debug.Log($"Total Yaw Difference: {totalYawDifference}°");
+			//Debug.Log($"Total Pitch Difference: {totalPitchDifference}°");
+
+			var previousYaw = 0f;
+			var previousPitch = 0f;
+
+			// Distribute rotations across spine joints incrementally
 			for (var i = 0; i <= headIndex; i++)
 			{
 				if (Joints[i] == null) continue;
 
-				// Calculate blend factor (more rotation toward head)
 				var normalizedPosition = (float) i / headIndex;
 				var blendFactor = Mathf.Pow(normalizedPosition, 0.5f) * SpineTrackingBlend;
 
-				// Apply partial rotation
-				var partialRotation = Quaternion.Slerp(Quaternion.identity, totalRotation, blendFactor);
+				// Calculate target cumulative rotation for this joint
+				var targetYaw = totalYawDifference * blendFactor;
+				var targetPitch = totalPitchDifference * blendFactor;
 
-				// Blend with original animation
-				var originalRotation = _originalBoneRotations.ContainsKey(Joints[i]) ?
-					_originalBoneRotations[Joints[i]] :
-					Joints[i].localRotation;
+				// Calculate only the ADDITIONAL rotation this joint needs
+				var additionalYaw = targetYaw - previousYaw;
+				var additionalPitch = targetPitch - previousPitch;
 
+				//Debug.Log($"Joint {i}: Additional Yaw={additionalYaw:F1}°, Pitch={additionalPitch:F1}°");
+
+				var partialRotation = Quaternion.Euler(additionalPitch, additionalYaw, 0);
+				var originalRotation = _originalBoneRotations[Joints[i]];
 				Joints[i].localRotation = originalRotation * partialRotation;
+
+				// Update previous values for next joint
+				previousYaw = targetYaw;
+				previousPitch = targetPitch;
 			}
 		}
 
 		private void UpdateAnimationDirection()
 		{
 			Debug.Log($"UpdateAnimationDirection called. _isBackPedaling: {_isBackPedaling}");
-    
+
 			if (_isBackPedaling)
 			{
 				_animationDirectionMultiplier = -1f; // Reverse animation
@@ -548,8 +633,6 @@ namespace Kobolds
 			}
 			/*if (_input.aim)
 			{
-
-
 				// Smoothly rotate the character to align with camera when aiming
 				var targetRotation = Quaternion.Euler(0f, _cinemachineTargetYaw, 0f);
 				transform.rotation = Quaternion.RotateTowards(
@@ -592,12 +675,12 @@ namespace Kobolds
 				// Combine motion speed with direction for animation control
 				var finalAnimationValue = inputMagnitude * _animationDirectionMultiplier;
 				_animator.SetFloat(_animIDAnimationDirection, finalAnimationValue);
-				
+
 				// DEBUG: Add these lines
-				Debug.Log($"Input Magnitude: {inputMagnitude}");
-				Debug.Log($"Animation Direction Multiplier: {_animationDirectionMultiplier}");
-				Debug.Log($"Final Animation Value sent to animator: {finalAnimationValue}");
-				Debug.Log($"Current animator AnimationDirection value: {_animator.GetFloat(_animIDAnimationDirection)}");
+				// Debug.Log($"Input Magnitude: {inputMagnitude}");
+				// Debug.Log($"Animation Direction Multiplier: {_animationDirectionMultiplier}");
+				// Debug.Log($"Final Animation Value sent to animator: {finalAnimationValue}");
+				// Debug.Log($"Current animator AnimationDirection value: {_animator.GetFloat(_animIDAnimationDirection)}");
 			}
 		}
 
