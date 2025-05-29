@@ -86,7 +86,7 @@ namespace StarterAssets
 		
 		[Tooltip("How sensitive the camera look is when the aim state is active")]
 		[SerializeField] private float AimSensitivity = 0.5f;
-
+		
         // cinemachine
         private float _cinemachineTargetYaw;
         private float _cinemachineTargetPitch;
