@@ -245,7 +245,7 @@ namespace Kobolds
 		private void LateUpdate()
 		{
 			// Handle head-body separation after movement calculations
-			if (_input.aim)
+			if (_input.Aim)
 				UpdateHeadBodySeparation();
 			else
 				ResetHeadBodySeparation();
@@ -357,12 +357,12 @@ namespace Kobolds
 			var angleFromHips = Vector3.SignedAngle(hipForward, headForward, Vector3.up);
 
 			// DEBUG: Add these lines
-			Debug.Log($"Head Forward: {headForward}");
-			Debug.Log($"Hip Forward: {hipForward}");
-			Debug.Log($"Angle between them: {angleFromHips}");
-			Debug.Log($"Absolute angle: {Mathf.Abs(angleFromHips)}");
-			Debug.Log($"Max allowed angle: {MaxHeadHipAngle}");
-			Debug.Log($"Should back pedal: {Mathf.Abs(angleFromHips) > MaxHeadHipAngle}");
+			//Debug.Log($"Head Forward: {headForward}");
+			//Debug.Log($"Hip Forward: {hipForward}");
+			//Debug.Log($"Angle between them: {angleFromHips}");
+			//Debug.Log($"Absolute angle: {Mathf.Abs(angleFromHips)}");
+			//Debug.Log($"Max allowed angle: {MaxHeadHipAngle}");
+			//Debug.Log($"Should back pedal: {Mathf.Abs(angleFromHips) > MaxHeadHipAngle}");
 
 			// Check if we need back-pedaling
 			var shouldBackPedal = Mathf.Abs(angleFromHips) > MaxHeadHipAngle;
@@ -574,13 +574,13 @@ namespace Kobolds
 		{
 			// Always update Cinemachine camera angles, even when there is no look input
 			var deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
-			var sensitivityMultiplier = _input.aim ? AimSensitivity : NormalSensitivity;
+			var sensitivityMultiplier = _input.Aim ? AimSensitivity : NormalSensitivity;
 
-			if (_input.look.sqrMagnitude >= Threshold)
+			if (_input.Look.sqrMagnitude >= Threshold)
 			{
 				// Adjust camera yaw and pitch based on input
-				_cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier * sensitivityMultiplier;
-				_cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier * sensitivityMultiplier;
+				_cinemachineTargetYaw += _input.Look.x * deltaTimeMultiplier * sensitivityMultiplier;
+				_cinemachineTargetPitch += _input.Look.y * deltaTimeMultiplier * sensitivityMultiplier;
 			}
 
 			// Clamp rotations so values are within valid ranges
@@ -598,15 +598,15 @@ namespace Kobolds
 		private void Move()
 		{
 			if (_aimCamera)
-				_aimCamera.gameObject.SetActive(_input.aim);
+				_aimCamera.gameObject.SetActive(_input.Aim);
 
 			// Set speed based on movement and sprinting
-			var targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
-			if (_input.move == Vector2.zero) targetSpeed = 0.0f;
+			var targetSpeed = _input.Sprint ? SprintSpeed : MoveSpeed;
+			if (_input.Move == Vector2.zero) targetSpeed = 0.0f;
 
 			// Smooth the player's speed transitions
 			var currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
-			var inputMagnitude = _input.analogMovement ? _input.move.magnitude : 1f;
+			var inputMagnitude = _input.analogMovement ? _input.Move.magnitude : 1f;
 
 			if (currentHorizontalSpeed < targetSpeed - 0.1f || currentHorizontalSpeed > targetSpeed + 0.1f)
 			{
@@ -620,10 +620,10 @@ namespace Kobolds
 			}
 
 			// Normalize input direction
-			var inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
+			var inputDirection = new Vector3(_input.Move.x, 0.0f, _input.Move.y).normalized;
 
 			Vector3 targetDirection;
-			if (_input.aim)
+			if (_input.Aim)
 			{
 				// DON'T rotate the character root when aiming - let head track independently
 				// Character root stays in current orientation
@@ -644,7 +644,7 @@ namespace Kobolds
 			else
 			{
 				// Standard character movement logic when not aiming
-				if (_input.move != Vector2.zero)
+				if (_input.Move != Vector2.zero)
 				{
 					_targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
 									_mainCamera.transform.eulerAngles.y;
@@ -702,7 +702,7 @@ namespace Kobolds
 				if (_verticalVelocity < 0.0f) _verticalVelocity = -2f;
 
 				// Jump
-				if (_input.jump && _jumpTimeoutDelta <= 0.0f)
+				if (_input.Jump && _jumpTimeoutDelta <= 0.0f)
 				{
 					// the square root of H * -2 * G = how much velocity needed to reach desired height
 					_verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
@@ -731,7 +731,7 @@ namespace Kobolds
 				}
 
 				// if we are not grounded, do not jump
-				_input.jump = false;
+				_input.Jump = false;
 			}
 
 			// apply gravity over time if under terminal (multiply by delta time twice to linearly speed up over time)

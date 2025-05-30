@@ -615,6 +615,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5051634670748987709, guid: 869b8099782c9de48ab7b249f3f0cd3a, type: 3}
       insertIndex: 5
       addedObject: {fileID: 1027725994}
+    - targetCorrespondingSourceObject: {fileID: 5051634670748987709, guid: 869b8099782c9de48ab7b249f3f0cd3a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1027726002}
   m_SourcePrefab: {fileID: 100100000, guid: 869b8099782c9de48ab7b249f3f0cd3a, type: 3}
 --- !u!1 &1027725985 stripped
 GameObject:
@@ -633,14 +636,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e6e2405344156649ab8bc1ad582e82d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  move: {x: 0, y: 0}
-  look: {x: 0, y: 0}
-  jump: 0
-  sprint: 0
-  aim: 0
+  Move: {x: 0, y: 0}
+  Look: {x: 0, y: 0}
+  Jump: 0
+  Sprint: 0
+  Aim: 0
+  Fire: 0
   analogMovement: 0
   cursorLocked: 1
   cursorInputForLook: 1
+--- !u!114 &1027726002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1027725985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1105b0d5580f34b4fa709f9659bb3794, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Cam: {fileID: 1481765634}
+  BulletPrefab: {fileID: 1802627478119388551, guid: f098afbe226598341b99e5ad2a989be1, type: 3}
+  Inputs: {fileID: 1027725994}
 --- !u!4 &1238892670 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2654105881068278338, guid: 869b8099782c9de48ab7b249f3f0cd3a, type: 3}
@@ -964,6 +983,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 67117722a812a2e46ab8cb8eafbf5f5e, type: 3}
+--- !u!20 &1481765634 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 7971301707491233461, guid: 869b8099782c9de48ab7b249f3f0cd3a, type: 3}
+  m_PrefabInstance: {fileID: 983190626}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1510191618 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3925420133899031246, guid: 869b8099782c9de48ab7b249f3f0cd3a, type: 3}

@@ -8,11 +8,12 @@ namespace Kobolds
 	public class KoboldInputs : MonoBehaviour
 	{
 		[Header("Character Input Values")]
-		public Vector2 move;
-		public Vector2 look;
-		public bool jump;
-		public bool sprint;
-		public bool aim;
+		public Vector2 Move;
+		public Vector2 Look;
+		public bool Jump;
+		public bool Sprint;
+		public bool Aim;
+		public bool Fire;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -49,32 +50,42 @@ namespace Kobolds
         { 
             AimInput(value.isPressed);
         }
+		
+		public void OnFire(InputValue value)
+		{ 
+			FireInput(value.isPressed);
+		}
 #endif
 
 
 		public void MoveInput(Vector2 newMoveDirection)
 		{
-			move = newMoveDirection;
+			Move = newMoveDirection;
 		} 
 
 		public void LookInput(Vector2 newLookDirection)
 		{
-			look = newLookDirection;
+			Look = newLookDirection;
 		}
 
 		public void JumpInput(bool newJumpState)
 		{
-			jump = newJumpState;
+			Jump = newJumpState;
 		}
 
 		public void SprintInput(bool newSprintState)
 		{
-			sprint = newSprintState;
+			Sprint = newSprintState;
 		}
 		
 		public void AimInput(bool newAimState)
 		{
-			aim = newAimState;
+			Aim = newAimState;
+		}
+		
+		public void FireInput(bool newFireState)
+		{
+			Fire = newFireState;
 		}
 		
 		private void OnApplicationFocus(bool hasFocus)
