@@ -767,8 +767,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Cam: {fileID: 7971301707491233461}
-  BulletPrefab: {fileID: 1802627478119388551, guid: f098afbe226598341b99e5ad2a989be1, type: 3}
   Inputs: {fileID: 2848683434561902303}
+  PhysicsBulletPrefab: {fileID: 6348076429119861242, guid: f098afbe226598341b99e5ad2a989be1, type: 3}
+  BulletParticle: {fileID: 5438743295493871333, guid: f686970e943474f21af317441e2b709e, type: 3}
+  RaycastMask:
+    serializedVersion: 2
+    m_Bits: 63
+  ShootingCalculation: 1
 --- !u!4 &5571184029484067719 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 06be5fc76cb5e274db347d2b40fbffff, type: 3}

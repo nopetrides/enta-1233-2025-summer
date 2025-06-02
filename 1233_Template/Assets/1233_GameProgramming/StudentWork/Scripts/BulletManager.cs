@@ -28,8 +28,15 @@ namespace Kobolds
 
 		private void Update()
 		{
-			if (Inputs.Aim && Inputs.Fire) OnFirePressed();
-			Inputs.Fire = false;
+			if (Inputs)
+			{
+				if (Inputs.Aim && Inputs.Fire) OnFirePressed();
+				Inputs.Fire = false;
+			}
+			else
+			{
+				if (Input.GetKey(KeyCode.Mouse1) && Input.GetKeyDown(KeyCode.Mouse0)) OnFirePressed();
+			}
 		}
 
 		private void OnFirePressed()
@@ -92,7 +99,7 @@ namespace Kobolds
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            if (Inputs.Aim)
+            if (Inputs && Inputs.Aim)
                 Gizmos.DrawLine(Cam.transform.position, Cam.transform.position + Cam.transform.forward * 100);
         }
 

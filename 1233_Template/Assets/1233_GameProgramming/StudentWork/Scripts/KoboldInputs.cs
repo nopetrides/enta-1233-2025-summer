@@ -14,6 +14,9 @@ namespace Kobolds
 		public bool Sprint;
 		public bool Aim;
 		public bool Fire;
+		public bool GripR;
+		public bool GripL;
+		public bool GripJaw;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -55,6 +58,21 @@ namespace Kobolds
 		{ 
 			FireInput(value.isPressed);
 		}
+		
+		public void OnGripRight(InputValue value)
+		{
+			GripRInput(value.isPressed);
+		}
+		
+		public void OnGripLeft(InputValue value)
+		{
+			GripLInput(value.isPressed);
+		}
+
+		public void OnGripJaw(InputValue value)
+		{
+			GripJawInput(value.isPressed);
+		}
 #endif
 
 
@@ -86,6 +104,21 @@ namespace Kobolds
 		public void FireInput(bool newFireState)
 		{
 			Fire = newFireState;
+		}
+		
+		public void GripRInput(bool newSprintState)
+		{
+			GripR = newSprintState;
+		}
+		
+		public void GripLInput(bool newAimState)
+		{
+			GripL = newAimState;
+		}
+		
+		public void GripJawInput(bool newFireState)
+		{
+			GripJaw = newFireState;
 		}
 		
 		private void OnApplicationFocus(bool hasFocus)
