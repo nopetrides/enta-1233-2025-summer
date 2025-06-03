@@ -239,7 +239,13 @@ namespace Kobolds
 			var hips = Ragdoll.Handler.GetAnchorBoneController;
 			var hit = Ragdoll.Handler.ProbeGroundBelowHips(
 				GroundMask, hips.MainBoneCollider.bounds.size.magnitude + 0.01f);
-			if (!hit.transform) return;
+			if (!hit.transform)
+			{
+				Debug.Log("Unbury failed: no ground detected under hips. Forcing fallback get-up.");
+				
+				// Use current transform position to avoid hanging
+				hit.point = transform.position;
+			}
 
 			transform.position = hit.point;
 			transform.rotation = Ragdoll.User_GetMappedRotationHipsToLegsMiddle();

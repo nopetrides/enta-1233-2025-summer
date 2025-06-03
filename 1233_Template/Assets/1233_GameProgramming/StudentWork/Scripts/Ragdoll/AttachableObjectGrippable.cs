@@ -25,7 +25,8 @@ namespace Kobolds
 				return false;
 			}
 
-			var animatorBone = FindAnimatorBoneForDummy(handler, magnet.transform);
+			var animatorBone = magnet.transform;
+			//var animatorBone = FindAnimatorBoneForDummy(handler, magnet.transform);
 			if (animatorBone == null)
 			{
 				Debug.LogError($"[AttachableObjectGrippable] Failed to map dummy bone '{magnet.transform.name}' to animator bone!", this);

@@ -20,9 +20,11 @@ namespace Kobolds
 		[SerializeField] private float GripRadius = 0.4f;
 		[SerializeField] private LayerMask GrippableLayers;
 
+		public GripType GripTypeValue => GripType;
 		private IGrippable _currentTarget;
 		private Collider[] _overlapBuffer = new Collider[6];
 
+		public RA2MagnetPoint MagnetPoint => Magnet;
 		public RagdollAnimator2 RagdollAnimator => Ragdoll;
 		public RagdollHandler RagdollHandler => Ragdoll.Handler;
 		public bool HasTargetAttached => _currentTarget != null;

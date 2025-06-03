@@ -11,6 +11,7 @@ namespace Kobolds
 		
 		[SerializeField] private KoboldInputs Inputs;
 		[SerializeField] private KoboldStateManager StateManager;
+		[SerializeField] private KoboldLatcher Latcher;
 
 		[Header("Grip Anim Params")]
 		[SerializeField] private Animator Animator;
@@ -88,7 +89,7 @@ namespace Kobolds
 				return;
 			
 			Debug.Log("Grip Jaw");
-			_jawModeActive = !_jawModeActive;
+			Latcher.ToggleJawGrip();
 			Animator.SetBool(GripJawAnimParam, _jawModeActive);
 
 			if (!_jawModeActive)

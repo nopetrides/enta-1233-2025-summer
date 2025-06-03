@@ -19,7 +19,10 @@ namespace Kobolds
 
 		public bool IsInState(KoboldState state) => currentState == state;
 
-		public bool CanGrip => IsInState(KoboldState.Active);
+		public bool CanGrip => currentState == KoboldState.Active || currentState == KoboldState.Climbing;
+
+		public bool IsClimbing => currentState == KoboldState.Climbing;
+
 
 		public void SetState(KoboldState newState)
 		{
