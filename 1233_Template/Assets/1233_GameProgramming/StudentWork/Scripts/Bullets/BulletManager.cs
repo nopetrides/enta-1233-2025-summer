@@ -4,19 +4,16 @@ using UnityEngine.Serialization;
 
 namespace Kobolds
 {
-	public class BulletManager : MonoBehaviour
+	public class BulletManager : BaseBulletManager
 	{
         [Header("External Scripts")]
 		[SerializeField] private Camera Cam;
         [SerializeField] private KoboldInputs Inputs;
 
-        [Header("Bullets")]
-		[FormerlySerializedAs("BulletPrefab")] 
-        [SerializeField] private PhysicsBullet PhysicsBulletPrefab;
+        
 
         [Header("Raycast")]
         
-        [SerializeField] private RaycastBullet BulletParticle;
         [SerializeField] private LayerMask RaycastMask;
         [SerializeField] private ShootType ShootingCalculation;
 
@@ -41,7 +38,7 @@ namespace Kobolds
                     DoRaycastShot();
                     break;
                 case ShootType.Physics:
-                    SpawnPhysicsBullet();
+                    SpawnPhysicsBullet(Cam.transform);
                     break;
                 default:
                     Debug.LogError("Unexpected value");
@@ -49,13 +46,7 @@ namespace Kobolds
             }
 		}
 
-        private void SpawnPhysicsBullet()
-        {
-            // does not call collision until physics system collides
-
-            PhysicsBullet spawnedBullet = Instantiate(PhysicsBulletPrefab, Cam.transform.position, Cam.transform.rotation);
-            spawnedBullet.Initialize(this);
-        }
+        
 
         private void DoRaycastShot()
         {
@@ -75,19 +66,9 @@ namespace Kobolds
             }
         }
 
-        public void OnProjectileCollision(Vector3 position, Vector3 rotation)
-        {
-            // do stuff
-            
-            
-            SpawnParticle(position, rotation);
-        }
+        
 
-        private void SpawnParticle(Vector3 position, Vector3 rotation)
-        {
-                
-            Instantiate(BulletParticle, position, Quaternion.Euler(rotation));
-        }
+        
 
         private void OnDrawGizmos()
         {

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 6348076429119861242}
   - component: {fileID: 8512983477801445043}
   m_Layer: 10
-  m_Name: w
+  m_Name: PhysicsBullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

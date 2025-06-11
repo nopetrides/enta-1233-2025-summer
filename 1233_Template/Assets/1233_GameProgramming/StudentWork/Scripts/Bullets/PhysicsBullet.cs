@@ -13,9 +13,9 @@ namespace Kobolds
 
         [SerializeField] private Rigidbody Rb;
         
-        private BulletManager bulletManager;
+        private BaseBulletManager bulletManager;
 
-        public void Initialize(BulletManager manager)
+        public void Initialize(BaseBulletManager manager)
         {
             bulletManager = manager;
         }
