@@ -13,11 +13,11 @@ namespace Kobolds
 
         [SerializeField] private Rigidbody Rb;
         
-        private BaseBulletManager bulletManager;
+        private BaseBulletManager _bulletManager;
 
         public void Initialize(BaseBulletManager manager)
         {
-            bulletManager = manager;
+            _bulletManager = manager;
         }
 
         // Start is called before the first frame update
@@ -30,7 +30,7 @@ namespace Kobolds
         void OnCollisionEnter(Collision collision)
         {
             ContactPoint contact = collision.GetContact(0);
-            bulletManager.OnProjectileCollision(contact.point, contact.normal);
+            _bulletManager.OnProjectileCollision(contact.point, contact.normal);
             Destroy(gameObject);
         }
     }
